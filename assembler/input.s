@@ -17,14 +17,18 @@
         sw   $7, 68($3)
         nop
         lw   $2, 80($0)
+        nop
         j    end
         addi $2, $0, 1
 .end
         in   $5
         out  $5                 ; expects: input value(105 = x69 in test)
         sw   $5, 76($3)
+        nop
         lw   $2, 80($0)
+        nop
         sw   $2, 84($0)
+        nop
         out  $2                 ; expects: 7
         out  $0                 ; test done flag
         in   $0                 ; BLOCK
