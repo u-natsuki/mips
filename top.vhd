@@ -6,11 +6,29 @@ library UNISIM;
 use UNISIM.VComponents.all;
 
 entity top is
+  Port (
+    ZD     : inout std_logic_vector(31 downto 0);
+    ZDP    : inout std_logic_vector(3 downto 0);
 
-  port (
-    CLK, XRST, RS_RX       : in  std_logic;
-    RS_TX                  : out std_logic);
+    ZA     : out std_logic_vector(19 downto 0);
+    XE1    : out std_logic;
+    E2A    : out std_logic;
+    XE3    : out std_logic;
+    XZBE   : out std_logic_vector(3 downto 0);
+    XGA    : out std_logic;
+    XWA    : out std_logic;
+    XZCKE  : out std_logic;
+    ZCLKMA : out std_logic_vector(1 downto 0);
 
+    ADVA   : out std_logic;
+    XFT    : out std_logic;
+    XLBO   : out std_logic;
+    ZZA    : out std_logic;
+
+    CLK    : in STD_LOGIC;
+    XRST   : in STD_LOGIC;
+    RS_RX  : in STD_LOGIC;
+    RS_TX  : out  STD_LOGIC);
 end top;
 
 architecture top of top is
@@ -34,11 +52,21 @@ architecture top of top is
        rd : out std_logic_vector(31 downto 0));
   end component;
 
-  component data_memory
-    port (
-      clk, we : in  std_logic;
-      a, wd   : in  std_logic_vector(31 downto 0);
-      rd      : out std_logic_vector(31 downto 0));
+  component real_data_memory is
+    Port (
+      ZD         : inout std_logic_vector(31 downto 0);
+      ZDP        : inout std_logic_vector(3 downto 0);
+
+      ZA         : out std_logic_vector(19 downto 0);
+      XZBE       : out std_logic_vector(3 downto 0);
+      XWA        : out std_logic;
+
+      clk        : in std_logic;
+      data_read  : out std_logic_vector(31 downto 0);
+      data_write : in std_logic_vector(31 downto 0);
+      address    : in std_logic_vector(19 downto 0);
+      write_flag : in std_logic
+      );
   end component;
 
   component rs232c_buffer is
@@ -82,7 +110,6 @@ begin  -- test
     o=>iclk);
 
   imem1 : instruction_memory port map(pc(7 downto 2), instruction);
-  dmem1 : data_memory port map(iclk, mem_write, data_addr, write_data, memory_data);
 
   mips1 : mips port map (
     clk           => iclk,
@@ -110,9 +137,34 @@ begin  -- test
     push      => send_enable,
     push_data => write_data,
     tx        => RS_TX);
+
+  data_memory : real_data_memory port map (
+    ZD         => ZD,
+    ZDP        => ZDP,
+    ZA         => ZA,
+    XZBE       => XZBE,
+    XWA        => XWA,
+    clk        => iclk,
+    data_read  => memory_data,
+    data_write => write_data,
+    address    => data_addr,
+    write_flag => mem_write);
   
   -- is this good design to judge here?
   -- ok for reading twice?
   data_from_bus <= x"000000" & rx_data when rx_enable = '1' or rx_done = '1' else memory_data;
+
+  -- static SRAM signals
+  XE1 <= '0';
+  E2A <= '1';
+  XE3 <= '0';
+  XGA <= '0';
+  XZCKE <= '0';
+  ZCLKMA(0) <= iclk;
+  ZCLKMA(1) <= iclk;
+  ADVA <= '0';
+  XFT <= '1';
+  XLBO <= '1';
+  ZZA <= '0';
 
 end top;
