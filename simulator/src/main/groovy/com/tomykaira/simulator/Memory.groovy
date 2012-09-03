@@ -17,18 +17,27 @@ class Memory {
         if (mem[address.toInteger()] == null) {
             throw new NotYetSetException(address)
         } else {
-            mem[address.toInteger()]
+            mem[normalize(address)]
         }
     }
 
     void set(long address, long data) {
         assertAddressInRange(address)
-        mem[address.toInteger()] = data
+        mem[normalize(address)] = data
     }
 
     private void assertAddressInRange(address) {
         if (address >= MAX_ADDRESS) {
             throw new OutOfRangeException();
+        }
+    }
+
+    private int normalize(address) {
+        assertAddressInRange(address)
+        if (address < 0) {
+            (MAX_ADDRESS-address).toInteger()
+        } else {
+            address.toInteger()
         }
     }
 }
