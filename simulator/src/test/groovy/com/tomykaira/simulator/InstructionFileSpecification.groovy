@@ -25,5 +25,23 @@ class InstructionFileSpecification extends Specification {
 
         then:
         inst.length == 1
+        inst.get(0) == 0
+    }
+
+    def "Multiline"() {
+        when:
+        def inst = new InstructionFile("0"*32+"\n"+"1"*32)
+
+        then:
+        inst.length == 2
+        inst.get(1) == 0xffffffff
+    }
+
+    def "blank lines should be skipped"() {
+        when:
+        def inst = new InstructionFile("0"*32+"\n\n"+"1"*32+"\n")
+
+        then:
+        inst.length == 2
     }
 }

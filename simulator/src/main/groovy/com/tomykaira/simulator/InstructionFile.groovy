@@ -11,11 +11,16 @@ class InstructionFile {
     private def instructions = []
 
     InstructionFile(String str) {
-        if (str)
-            instructions = str.split("\n")
+        if (str) {
+            instructions = str.split("\n").findAll {it != ""}.collect {Long.parseLong(it, 2)}
+        }
     }
 
     def getLength() {
         instructions.size();
+    }
+
+    long get(Integer integer) {
+        instructions[integer]
     }
 }
