@@ -10,17 +10,19 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
  * To change this template use File | Settings | File Templates.
  */
 class Mips {
+    public static final int STACK_SIZE = 64
+
     private final InstructionFile instructionFile
     private final Memory memory
     private int pc = 0
     private final Register reg = new Register(32)
+    private final List<Integer> stack = new ArrayList<Integer>(STACK_SIZE)
     private final ioPort
 
     Mips(InstructionFile instructionFile, Memory memory, port) {
         this.instructionFile = instructionFile
         this.memory = memory
         this.ioPort = port
-        reg.set(31, 0)
     }
 
     Mips tick() {
@@ -101,11 +103,11 @@ class Mips {
                 memory.set(reg.get(rs) + reg.get(rd), reg.get(rt))
                 break
             case 55:
-                memory.set(reg.get(31), pc + 1)
+                stack.push(pc + 1)
                 pc = jmp - 1 // adjustment for always +1
                 break
             case 56:
-                pc = memory.get(reg.get(31)) - 1
+                pc = stack.pop() - 1
                 break
             case 57:
             case 60:
