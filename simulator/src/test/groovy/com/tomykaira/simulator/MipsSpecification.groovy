@@ -24,6 +24,11 @@ class MipsSpecification extends Specification {
         memory.get(1024) == 5
     }
 
+    def "beq"() {
+        when:
+        def inst = new InstructionFile([addi(1,0,5), addi(2,0,5), beq()])
+    }
+
     String addi(int to, int from, int imm) {
         "001010" + bit(from, 5) + bit(to, 5) + bit(imm, 16)
     }
