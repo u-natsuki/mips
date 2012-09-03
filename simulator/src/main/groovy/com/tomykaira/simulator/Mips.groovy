@@ -14,10 +14,18 @@ class Mips {
     private final Memory memory
     private int pc = 0
     private final Register reg = new Register(32)
+    private final ioPort
 
     Mips(InstructionFile instructionFile, Memory memory) {
         this.instructionFile = instructionFile
         this.memory = memory
+        reg.set(31, 0)
+    }
+
+    Mips(InstructionFile instructionFile, Memory memory, port) {
+        this.instructionFile = instructionFile
+        this.memory = memory
+        this.ioPort = port
         reg.set(31, 0)
     }
 
@@ -87,7 +95,7 @@ class Mips {
                 reg.set(rt, ib(reg.get(rs).toFloat()))
                 break
             case 4:
-                throw new NotImplementedException("SNDB")
+                ioPort.send(reg.get(rt) & 0xff)
                 break
             case 12:
                 throw new NotImplementedException("RBYT")

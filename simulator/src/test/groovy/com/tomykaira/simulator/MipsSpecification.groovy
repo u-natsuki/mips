@@ -2,6 +2,7 @@ package com.tomykaira.simulator
 
 import spock.lang.Specification
 import com.sun.org.apache.bcel.internal.generic.Instruction
+import groovy.mock.interceptor.MockFor
 
 /**
  * Created with IntelliJ IDEA.
@@ -63,6 +64,38 @@ class MipsSpecification extends Specification {
         3     | 4
         4     | 2
         5     | 3
+    }
+
+    def "send a byte"() {
+        when:
+        def received = null
+        def mockPort = [send: {arg -> received = arg}] as Expando
+        def inst = new InstructionFile([addi(1,0,5), send(1)].join("\n"))
+        def mips = new Mips(inst, memory, mockPort)
+        mips.tick().tick()
+
+        then:
+        received == 5
+    }
+
+    def "send only a byte if it is larger than 255"() {
+        when:
+        def received = null
+        def mockPort = [send: {arg -> received = arg}] as Expando
+        def inst = new InstructionFile([addi(1,0,1050), send(1)].join("\n"))
+        def mips = new Mips(inst, memory, mockPort)
+        mips.tick().tick()
+
+        then:
+        received == 0x1a
+    }
+
+    def "receives an input"() {
+        // TODO
+    }
+
+    String send(int reg) {
+        "000100" + bit(0, 5) + bit(reg, 5) + bit(0, 16)
     }
 
     String call(int pc) {
