@@ -26,6 +26,10 @@ class Register {
         regfile[address.toInteger()]
     }
 
+    Long getDebug(long address) {
+        regfile[address.toInteger()]
+    }
+
     void set(long address, long data) {
         if (address >= length)
             throw new OutOfRangeException()

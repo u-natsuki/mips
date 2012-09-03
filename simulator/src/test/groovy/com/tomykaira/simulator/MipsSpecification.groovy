@@ -140,6 +140,10 @@ class MipsSpecification extends Specification {
         "001010" + bit(from, 5) + bit(to, 5) + bit(imm, 16)
     }
 
+    String fadd(int rd, int rs, int rt) {
+        "010000" + bit(rd, 5) + bit(rs, 5) + bit(rt, 5) + bit(0, 11)
+    }
+
     String sw(int from, int address, int diff) {
         "101011" + bit(address, 5) + bit(from, 5) + bit(diff, 16)
     }

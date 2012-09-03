@@ -23,13 +23,15 @@ class Main {
         def prevPc = -1
         while (mips.pc != prevPc) {
             prevPc = mips.pc
-            println mips.reg.get(31)
+            println Float.intBitsToFloat(mips.reg.getDebug(17)?.toInteger() ?: 0)
+            println Float.intBitsToFloat(mips.reg.getDebug(18)?.toInteger() ?: 0)
             println prevPc
             try {
                 mips.tick()
             } catch (Exception e) {
                 System.err.println("${mips.pc}")
                 e.printStackTrace()
+                throw e
             }
         }
         new File(args[2]).write(server.ppm.toString(), ENCODING)

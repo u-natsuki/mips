@@ -56,13 +56,25 @@ class Mips {
                 reg.set(rt, reg.get(rs) << imm)
                 break
             case 16:
-                reg.set(rd, ib(f(reg.get(rs)) + f(reg.get(rt))))
+                def result = f(reg.get(rs)) + f(reg.get(rt))
+                if (result.isNaN())
+                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is NaN")
+
+                reg.set(rd, ib(result))
                 break
             case 17:
-                reg.set(rd, ib(f(reg.get(rs)) - f(reg.get(rt))))
+                def result = f(reg.get(rs)) - f(reg.get(rt))
+                if (result.isNaN())
+                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) - ${rt}(${reg.get(rt)}) is NaN")
+
+                reg.set(rd, ib(result))
                 break
             case 18:
-                reg.set(rd, ib(f(reg.get(rs)) * f(reg.get(rt))))
+                def result = f(reg.get(rs)) * f(reg.get(rt))
+                if (result.isNaN())
+                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) * ${rt}(${reg.get(rt)}) is NaN")
+
+                reg.set(rd, ib(result))
                 break
             case 19:
                 reg.set(rt, f(reg.get(rs)).toInteger())
@@ -71,7 +83,7 @@ class Mips {
                 reg.set(rt, ib(reg.get(rs).toFloat()))
                 break
             case 4:
-                ioPort.send(reg.get(rt) & 0xff)
+                ioPort.send((reg.get(rt) & 0xff).toInteger())
                 break
             case 12:
                 reg.set(rt, ioPort.receive())
@@ -129,8 +141,8 @@ class Mips {
             cut
     }
 
-    private long ib(float v) {
-        Float.floatToIntBits(v).toLong()
+    private long ib(Number v) {
+        Float.floatToIntBits(v.toFloat()).toLong()
     }
 
     private float f(long l) {
