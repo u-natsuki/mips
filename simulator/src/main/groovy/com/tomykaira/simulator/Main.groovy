@@ -25,7 +25,12 @@ class Main {
             prevPc = mips.pc
             println mips.reg.get(31)
             println prevPc
-            mips.tick()
+            try {
+                mips.tick()
+            } catch (Exception e) {
+                System.err.println("${mips.pc}")
+                e.printStackTrace()
+            }
         }
         new File(args[2]).write(server.ppm.toString(), ENCODING)
     }
