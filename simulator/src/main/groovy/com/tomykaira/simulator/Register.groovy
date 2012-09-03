@@ -17,7 +17,7 @@ class Register {
     }
 
     long get(long address) {
-        if (address == 0)
+        if (address == 0 || address == 16)
             return 0
         if (address >= length)
             throw new OutOfRangeException()

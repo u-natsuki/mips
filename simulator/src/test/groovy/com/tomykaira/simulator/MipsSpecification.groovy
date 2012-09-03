@@ -34,6 +34,16 @@ class MipsSpecification extends Specification {
         mips.pc == 11
     }
 
+    def "floating 0"() {
+        when:
+        def inst = new InstructionFile(sw(16,0,1000))
+        def mips = new Mips(inst, memory)
+        mips.tick()
+
+        then:
+        memory.get(1000) == 0
+    }
+
     String addi(int to, int from, int imm) {
         "001010" + bit(from, 5) + bit(to, 5) + bit(imm, 16)
     }
