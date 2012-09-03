@@ -58,18 +58,18 @@ class Mips {
                 reg.set(rt, reg.get(rs) << imm)
                 break
             case 16:
-                def result = f(reg.get(rs)) + f(reg.get(rt))
-                if (result.isNaN())
+                def result = fadd(reg.get(rs).toInteger(), reg.get(rt).toInteger())
+                if (Float.intBitsToFloat(result).isNaN())
                     throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is NaN")
 
-                reg.set(rd, ib(result))
+                reg.set(rd, result)
                 break
             case 17:
-                def result = f(reg.get(rs)) - f(reg.get(rt))
-                if (result.isNaN())
+                def result = fadd(reg.get(rs).toInteger(), reg.get(rt).xor(0x80000000).toInteger())
+                if (Float.intBitsToFloat(result).isNaN())
                     throw new SimulationException("Result of ${rs}(${reg.get(rs)}) - ${rt}(${reg.get(rt)}) is NaN")
 
-                reg.set(rd, ib(result))
+                reg.set(rd, result)
                 break
             case 18:
                 def result = f(reg.get(rs)) * f(reg.get(rt))
@@ -79,10 +79,10 @@ class Mips {
                 reg.set(rd, ib(result))
                 break
             case 19:
-                reg.set(rt, f(reg.get(rs)).toInteger())
+                reg.set(rt, f2i(reg.get(rs).toInteger(), false))
                 break
             case 20:
-                reg.set(rt, ib(reg.get(rs).toFloat()))
+                reg.set(rt, i2f(reg.get(rs).toInteger()))
                 break
             case 4:
                 ioPort.send((reg.get(rt) & 0xff).toInteger())
@@ -133,6 +133,154 @@ class Mips {
         }
         pc += 1
         return this
+    }
+
+    int i2f(int x) {
+        int s = 0
+
+        if (x == 0) return 0
+
+        if (x < 0){
+            s = 0x80000000
+            x = -x
+        }
+
+        int e = 150
+
+        while (x >= 0x01000000){
+            e++
+            x >>= 1
+        }
+        while (x < 0x00800000){
+            e--
+            x <<= 1
+        }
+
+        return s | (e << 23) | (x & 0x007FFFFF)
+    }
+
+    int f2i(int x, boolean opCode) {
+        boolean s = (x & 0x80000000) != 0;
+        int e = ((x & 0x7F800000) >> 23) - 127;
+        int m = (x & 0x007FFFFF) | 0x00800000;
+
+        int tmp;
+        int guard = 0, nonzero = 0;
+
+        if ((x & 0x7FFFFFFF) == 0) return 0;    // ±0
+        if (e >= 31){
+            tmp = 0x7FFFFFFF;
+            guard = nonzero = 0;
+        } else if (e <= -2) {                   // ±0.5 以内
+            tmp = guard = 0;
+            nonzero = 1;
+        } else {                                // それ以外
+            if (e >= 23) {                      // 左にシフト
+                tmp = m << (e - 23);
+                guard = nonzero = 0;
+            } else {                            // 右にシフト
+                tmp = m;
+                for (; e < 23; e++){
+                    guard = tmp & 1;
+                    nonzero |= guard;
+                    tmp >>= 1;
+                }
+            }
+        }
+
+        if (opCode){    // floor（整数版）
+            if (s){
+                if (nonzero != 0){
+                    return -tmp - 1;
+                } else {
+                    return -tmp;
+                }
+            } else {
+                return tmp;
+            }
+        } else {    // f2i
+            if (s){
+                return -tmp - guard;
+            } else {
+                return tmp + guard;
+            }
+        }
+    }
+
+    int fadd(int x, int y) {
+
+        int g, l;
+
+        if ((x & 0x7FFFFFFF) >= (y & 0x7FFFFFFF)){
+            g = x;
+            l = y;
+        } else {
+            g = y;
+            l = x;
+        }
+
+        int g_s = g & 0x80000000, l_s = l & 0x80000000;
+        int g_e = (g & 0x7F800000) >> 23, l_e = (l & 0x7F800000) >> 23;
+        int g_m = g & 0x007FFFFF, l_m = l & 0x007FFFFF;
+
+        if (g_e != 0) g_m |= 0x00800000;    // この辺は IEEE に準拠していない
+        if (l_e != 0) l_m |= 0x00800000;
+
+        if (g_s == l_s){    // 加算
+            l_m = (g_e - l_e <= 25) ? l_m >> (g_e - l_e) : 0;
+            g_m += l_m;
+            if (g_m >= 0x01000000){
+                g_e++;
+                g_m >>= 1;
+            }
+        } else {    // 減算
+            if (g_e == l_e){
+                g_m -= l_m;
+                while (g_m < 0x00800000 && g_e > 0){
+                    g_e--;
+                    g_m <<= 1;
+                }
+            } else if (g_e - l_e == 1){
+                g_m <<= 1;
+                g_m -= l_m;
+
+                if (g_m >= 0x01000000){
+                    g_m >>= 1;
+                } else {
+                    g_e--;
+                    if (g_e == 0) g_m >>= 1;
+                    while (g_m < 0x00800000 && g_e > 0){
+                        g_e--;
+                        g_m <<= 1;
+                    }
+                }
+            } else {
+                g_m <<= 2;
+                if (g_e - l_e == 0){
+                    l_m <<= 2;
+                } else if (g_e - l_e == 1){
+                    l_m <<= 1;
+                } else if (g_e - l_e <= 25){
+                    l_m >>= (g_e - l_e - 2);
+                } else {
+                    l_m = 0;
+                }
+
+                g_m -= l_m;
+                if (g_m >= 0x02000000){
+                    g_m >>= 2;
+                } else if (g_e > 0){
+                    g_e--;
+                    g_m >>= 1;
+                }
+            }
+        }
+
+        if (g_e == 0){
+            return g_s;
+        } else {
+            return g_s | (g_e << 23) | (g_m & 0x007FFFFF);
+        }
     }
 
     private Number signExtend(Number number, int fromSize) {
