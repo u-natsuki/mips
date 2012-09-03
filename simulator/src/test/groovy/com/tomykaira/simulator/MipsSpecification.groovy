@@ -17,8 +17,7 @@ class MipsSpecification extends Specification {
 
     def "addi sw"() {
         when:
-        def inst = new InstructionFile([addi(1, 0, 5), sw(1, 0, 1024)].join("\n"))
-        def mips = new Mips(inst, memory)
+        def mips = init(addi(1, 0, 5), sw(1, 0, 1024))
         mips.tick().tick()
 
         then:
@@ -28,8 +27,7 @@ class MipsSpecification extends Specification {
 
     def "addi with negative number"() {
         when:
-        def inst = new InstructionFile([addi(1, 0, 5), addi(1, 1, -3), sw(1, 0, 1024)].join("\n"))
-        def mips = new Mips(inst, memory)
+        def mips = init(addi(1, 0, 5), addi(1, 1, -3), sw(1, 0, 1024))
         mips.tick().tick().tick()
 
         then:
@@ -38,8 +36,7 @@ class MipsSpecification extends Specification {
 
     def "beq"() {
         when:
-        def inst = new InstructionFile([addi(1,0,5), addi(2,0,5), beq(1,2,8)].join("\n"))
-        def mips = new Mips(inst, memory)
+        def mips = init(addi(1,0,5), addi(2,0,5), beq(1,2,8))
         mips.tick().tick().tick()
 
         then:
@@ -48,8 +45,7 @@ class MipsSpecification extends Specification {
 
     def "floating 0"() {
         when:
-        def inst = new InstructionFile(sw(16,0,1000))
-        def mips = new Mips(inst, memory)
+        def mips = init(sw(16,0,1000))
         mips.tick()
 
         then:
@@ -58,8 +54,7 @@ class MipsSpecification extends Specification {
 
     def "funcall"() {
         when:
-        def inst = new InstructionFile([addi(1,0,5), call(3), sw(1, 0, 1024), add(1,1,1), ret()].join("\n"))
-        def mips = new Mips(inst, memory)
+        def mips = init(addi(1,0,5), call(3), sw(1, 0, 1024), add(1,1,1), ret())
 
         times.times {mips.tick()}
 
@@ -79,36 +74,33 @@ class MipsSpecification extends Specification {
     def "send a byte"() {
         when:
         def received = null
-        def mockPort = [send: {arg -> received = arg}] as Expando
-        def inst = new InstructionFile([addi(1,0,5), send(1)].join("\n"))
-        def mips = new Mips(inst, memory, mockPort)
+        def mips = initWithPort([send: {arg -> received = arg}], addi(1,0,value), send(1))
         mips.tick().tick()
 
         then:
-        received == 5
-    }
+        received == sent
 
-    def "send only a byte if it is larger than 255"() {
-        when:
-        def received = null
-        def mockPort = [send: {arg -> received = arg}] as Expando
-        def inst = new InstructionFile([addi(1,0,1050), send(1)].join("\n"))
-        def mips = new Mips(inst, memory, mockPort)
-        mips.tick().tick()
-
-        then:
-        received == 0x1a
+        where:
+        value  | sent
+        5      | 5
+        0x41a  | 0x1a
     }
 
     def "receives an input"() {
         when:
-        def mockPort = [receive: {arg -> 72}] as Expando
-        def inst = new InstructionFile([receive(5), sw(5, 0, 9)].join("\n"))
-        def mips = new Mips(inst, memory, mockPort)
+        def mips = initWithPort([receive: {arg -> 72}], receive(5), sw(5, 0, 9))
         mips.tick().tick()
 
         then:
         memory.get(9) == 72
+    }
+
+    Mips init(String ...s) {
+        new Mips(new InstructionFile(s.join("\n")), memory)
+    }
+
+    Mips initWithPort(port, String ...s) {
+        new Mips(new InstructionFile(s.join("\n")), memory, port as Expando)
     }
 
     String receive(int reg) {
