@@ -96,7 +96,7 @@ class MipsSpecification extends Specification {
     }
 
     Mips init(String ...s) {
-        new Mips(new InstructionFile(s.join("\n")), memory)
+        new Mips(new InstructionFile(s.join("\n")), memory, null)
     }
 
     Mips initWithPort(port, String ...s) {

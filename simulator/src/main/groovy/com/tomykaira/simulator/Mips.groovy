@@ -16,36 +16,12 @@ class Mips {
     private final Register reg = new Register(32)
     private final ioPort
 
-    Mips(InstructionFile instructionFile, Memory memory) {
-        this.instructionFile = instructionFile
-        this.memory = memory
-        reg.set(31, 0)
-    }
-
     Mips(InstructionFile instructionFile, Memory memory, port) {
         this.instructionFile = instructionFile
         this.memory = memory
         this.ioPort = port
         reg.set(31, 0)
     }
-
-    /*
-        when 'AND'  then '000000'
-    when 'NOP'  then '000000'
-    when 'OR'   then '000001'
-    when 'ADD'  then '000010'
-    when 'XOR'  then '000101'
-    when 'SUB'  then '000110'
-    when 'SLT'  then '000111'
-
-    when 'ANDI' then '001000'
-    when 'ORI'  then '001001'
-    when 'ADDI' then '001010'
-    when 'SLL'  then '001011'
-    when 'SUBI' then '001110'
-    when 'SLTI' then '001111'
-
-     */
 
     Mips tick() {
         def inst = instructionFile.get(pc)
@@ -150,11 +126,11 @@ class Mips {
             cut
     }
 
-    long ib(float v) {
+    private long ib(float v) {
         Float.floatToIntBits(v).toLong()
     }
 
-    float f(long l) {
+    private float f(long l) {
         Float.intBitsToFloat(l.toInteger())
     }
 
