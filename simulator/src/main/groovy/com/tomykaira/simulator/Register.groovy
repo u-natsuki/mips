@@ -16,19 +16,19 @@ class Register {
         regfile = new ArrayList<Long>(length)
     }
 
-    long get(int address) {
+    long get(long address) {
         if (address == 0)
             return 0
         if (address >= length)
             throw new OutOfRangeException()
-        if (regfile[address] == null)
+        if (regfile[address.toInteger()] == null)
             throw new NotYetSetException(address)
-        regfile[address]
+        regfile[address.toInteger()]
     }
 
-    void set(int address, long data) {
+    void set(long address, long data) {
         if (address >= length)
             throw new OutOfRangeException()
-        regfile[address] = data
+        regfile[address.toInteger()] = data
     }
 }

@@ -8,7 +8,7 @@ package com.tomykaira.simulator
  * To change this template use File | Settings | File Templates.
  */
 class NotYetSetException extends RuntimeException {
-    NotYetSetException(int address) {
+    NotYetSetException(Number address) {
         super("Address Violation: #${address} is not initialized")
     }
 
