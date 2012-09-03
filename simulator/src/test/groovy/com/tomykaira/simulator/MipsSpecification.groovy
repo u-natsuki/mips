@@ -52,6 +52,15 @@ class MipsSpecification extends Specification {
         memory.get(1000) == 0
     }
 
+    def "jump"() {
+        when:
+        def mips = init(addi(1,0,5), jump(0))
+        mips.tick().tick()
+
+        then:
+        mips.pc == 0
+    }
+
     def "funcall"() {
         when:
         def mips = init(addi(1,0,5), call(3), sw(1, 0, 1024), add(1,1,1), ret())
@@ -113,6 +122,10 @@ class MipsSpecification extends Specification {
 
     String call(int pc) {
         "110111" + bit(pc, 26)
+    }
+
+    String jump(int pc) {
+        "111111" + bit(pc, 26)
     }
 
     String ret() {

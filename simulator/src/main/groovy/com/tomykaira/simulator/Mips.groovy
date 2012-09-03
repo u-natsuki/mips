@@ -111,8 +111,11 @@ class Mips {
                     pc += imm
                 break
             case 63:
-                pc = jmp
+                pc = jmp - 1 // adjustment for always +1
                 break
+            default:
+                System.err.println("Instruction not implemented: ${pc}: ${inst}")
+                throw new NotImplementedException()
         }
         pc += 1
         return this
