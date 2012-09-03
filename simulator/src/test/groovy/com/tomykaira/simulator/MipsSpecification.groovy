@@ -26,7 +26,12 @@ class MipsSpecification extends Specification {
 
     def "beq"() {
         when:
-        def inst = new InstructionFile([addi(1,0,5), addi(2,0,5), beq()])
+        def inst = new InstructionFile([addi(1,0,5), addi(2,0,5), beq(1,2,8)].join("\n"))
+        def mips = new Mips(inst, memory)
+        mips.tick().tick().tick()
+
+        then:
+        mips.pc == 11
     }
 
     String addi(int to, int from, int imm) {
@@ -35,6 +40,10 @@ class MipsSpecification extends Specification {
 
     String sw(int from, int address, int diff) {
         "101011" + bit(address, 5) + bit(from, 5) + bit(diff, 16)
+    }
+
+    String beq(int rs, int rt, int diff) {
+        "111110" + bit(rs, 5) + bit(rt, 5) + bit(diff, 16)
     }
 
     String bit(Number number, int columns) {
