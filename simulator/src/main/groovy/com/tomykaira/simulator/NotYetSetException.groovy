@@ -9,7 +9,7 @@ package com.tomykaira.simulator
  */
 class NotYetSetException extends RuntimeException {
     NotYetSetException(int address) {
-        super("Memory Violation: memory #${address} is not initialized")
+        super("Address Violation: #${address} is not initialized")
     }
 
 }

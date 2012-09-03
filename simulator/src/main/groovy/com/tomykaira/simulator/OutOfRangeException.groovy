@@ -7,5 +7,5 @@ package com.tomykaira.simulator
  * Time: 3:31 PM
  * To change this template use File | Settings | File Templates.
  */
-class MemoryOutOfRangeException extends RuntimeException {
+class OutOfRangeException extends RuntimeException {
 }

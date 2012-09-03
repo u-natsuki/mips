@@ -33,7 +33,7 @@ class MemorySpecification extends Specification {
         memory.set(20_0000_0000, 0)
 
         then:
-        thrown(MemoryOutOfRangeException)
+        thrown(OutOfRangeException)
     }
 
     def "get very big address"() {
@@ -41,6 +41,6 @@ class MemorySpecification extends Specification {
         memory.get(20_0000_0000)
 
         then:
-        thrown(MemoryOutOfRangeException)
+        thrown(OutOfRangeException)
     }
 }

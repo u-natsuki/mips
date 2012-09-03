@@ -28,7 +28,7 @@ class Memory {
 
     private void assertAddressInRange(address) {
         if (address >= MAX_ADDRESS) {
-            throw new MemoryOutOfRangeException();
+            throw new OutOfRangeException();
         }
     }
 }
