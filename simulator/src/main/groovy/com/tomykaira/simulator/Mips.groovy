@@ -18,6 +18,7 @@ class Mips {
     Mips(InstructionFile instructionFile, Memory memory) {
         this.instructionFile = instructionFile
         this.memory = memory
+        reg.set(31, 0)
     }
 
     /*
@@ -104,10 +105,11 @@ class Mips {
                 memory.set(reg.get(rs) + reg.get(rd), reg.get(rt))
                 break
             case 55:
-                throw new NotImplementedException()
+                memory.set(reg.get(31), pc + 1)
+                pc = jmp - 1 // adjustment for always +1
                 break
             case 56:
-                throw new NotImplementedException()
+                pc = memory.get(reg.get(31)) - 1
                 break
             case 57:
             case 60:

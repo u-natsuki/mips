@@ -12,16 +12,16 @@ class Memory {
     private final int MAX_ADDRESS = 2*1024*1024
     List<Long> mem = new ArrayList<Long>(MAX_ADDRESS)
 
-    long get(address) {
+    long get(long address) {
         assertAddressInRange(address)
-        if (mem[address] == null) {
+        if (mem[address.toInteger()] == null) {
             throw new NotYetSetException(address)
         } else {
-            mem[address]
+            mem[address.toInteger()]
         }
     }
 
-    void set(address, long data) {
+    void set(long address, long data) {
         assertAddressInRange(address)
         mem[address.toInteger()] = data
     }

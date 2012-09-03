@@ -1,6 +1,7 @@
 package com.tomykaira.simulator
 
 import spock.lang.Specification
+import com.sun.org.apache.bcel.internal.generic.Instruction
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,6 +43,38 @@ class MipsSpecification extends Specification {
 
         then:
         memory.get(1000) == 0
+    }
+
+    def "funcall"() {
+        when:
+        def inst = new InstructionFile([addi(1,0,5), call(3), sw(1, 0, 1024), add(1,1,1), ret()].join("\n"))
+        def mips = new Mips(inst, memory)
+
+        times.times {mips.tick()}
+
+        then:
+        mips.pc == pc
+
+        where:
+        times | pc
+        0     | 0
+        1     | 1
+        2     | 3
+        3     | 4
+        4     | 2
+        5     | 3
+    }
+
+    String call(int pc) {
+        "110111" + bit(pc, 26)
+    }
+
+    String ret() {
+        "111000" + bit(0, 26)
+    }
+
+    String add(int rd, int rs, int rt) {
+        "000010" + bit(rd, 5) + bit(rs, 5) + bit(rt, 5) + bit(0, 11)
     }
 
     String addi(int to, int from, int imm) {
