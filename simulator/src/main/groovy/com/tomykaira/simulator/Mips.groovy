@@ -98,7 +98,7 @@ class Mips {
                 ioPort.send(reg.get(rt) & 0xff)
                 break
             case 12:
-                throw new NotImplementedException("RBYT")
+                reg.set(rt, ioPort.receive())
                 break
             case 35:
                 reg.set(rt, memory.get(reg.get(rs) + imm))

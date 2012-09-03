@@ -91,7 +91,18 @@ class MipsSpecification extends Specification {
     }
 
     def "receives an input"() {
-        // TODO
+        when:
+        def mockPort = [receive: {arg -> 72}] as Expando
+        def inst = new InstructionFile([receive(5), sw(5, 0, 9)].join("\n"))
+        def mips = new Mips(inst, memory, mockPort)
+        mips.tick().tick()
+
+        then:
+        memory.get(9) == 72
+    }
+
+    String receive(int reg) {
+        "001100" + bit(0, 5) + bit(reg, 5) + bit(0, 16)
     }
 
     String send(int reg) {
