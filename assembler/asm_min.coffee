@@ -33,12 +33,12 @@ instCode = (inst) ->
     when 'SUB'  then '000110'
     when 'SLT'  then '000111'
 
-    when 'ANDI' then '001000'
-    when 'ORI'  then '001001'
+    # when 'ANDI' then '001000'
+    # when 'ORI'  then '001001'
     when 'ADDI' then '001010'
     when 'SLL'  then '001011'
-    when 'SUBI' then '001110'
-    when 'SLTI' then '001111'
+    # when 'SUBI' then '001110'
+    # when 'SLTI' then '001111'
 
     when 'FADD' then '010000'
     when 'FSUB' then '010001'
@@ -148,7 +148,13 @@ toInstruction = (line, labels) ->
         if isRegister(args[2])
           instCode(inst) + reg(args[1]) + reg(args[2]) + reg(args[0]) + '00000000000'
         else
-          instCode(inst + 'I') + reg(args[1]) + reg(args[0]) + imm(args[2])
+          switch inst
+            when 'ADD'
+              instCode('ADDI') + reg(args[1]) + reg(args[0]) + imm(args[2])
+            when 'SUB'
+              instCode('ADDI') + reg(args[1]) + reg(args[0]) + imm(args[2], true)
+            else
+              throw "Unexpected immediate instruction #{inst}I"
       when 'FADD', 'FSUB', 'FMUL'
         instCode(inst) + reg(args[1]) + reg(args[2]) + reg(args[0]) + '00000000000'
       when 'LOAD+', 'LOAD-', 'STORE+', 'STORE-', 'FLOAD+', 'FLOAD-', 'FSTORE+', 'FSTORE-'
