@@ -52,7 +52,7 @@ class Mips {
         def rs = (inst >> 21) & 0b11111
         def rt = (inst >> 16) & 0b11111
         def rd = (inst >> 11) & 0b11111
-        def imm = inst & 0xffff
+        def imm = signExtend(inst, 16)
         def jmp = inst & 0x3ffffff
         switch (inst >> 26) {
             case 0:
@@ -140,6 +140,14 @@ class Mips {
         }
         pc += 1
         return this
+    }
+
+    private Number signExtend(Number number, int fromSize) {
+        def cut = number & ((1 << fromSize) - 1)
+        if ((cut & (1 << (fromSize-1))) > 0)
+            cut - (1 << fromSize)
+        else
+            cut
     }
 
     long ib(float v) {

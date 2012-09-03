@@ -26,6 +26,16 @@ class MipsSpecification extends Specification {
         memory.get(1024) == 5
     }
 
+    def "addi with negative number"() {
+        when:
+        def inst = new InstructionFile([addi(1, 0, 5), addi(1, 1, -3), sw(1, 0, 1024)].join("\n"))
+        def mips = new Mips(inst, memory)
+        mips.tick().tick().tick()
+
+        then:
+        memory.get(1024) == 2
+    }
+
     def "beq"() {
         when:
         def inst = new InstructionFile([addi(1,0,5), addi(2,0,5), beq(1,2,8)].join("\n"))
@@ -134,8 +144,7 @@ class MipsSpecification extends Specification {
     }
 
     String bit(Number number, int columns) {
-        ("0"*columns + Integer.toString(number, 2))[-columns..-1]
+        def positive = number > 0 ? number : 2 ** columns + number
+        ("0"*columns + Integer.toString(positive, 2))[-columns..-1]
     }
-
-
 }
