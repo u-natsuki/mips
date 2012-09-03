@@ -13,9 +13,17 @@ class InstructionFileSpecification extends Specification {
 
     def "When read a blank string"() {
         when:
-        def inst = new InstructionFile();
+        def inst = new InstructionFile()
 
         then:
         inst.length == 0
+    }
+
+    def "When a line is supplied"() {
+        when:
+        def inst = new InstructionFile("0"*32)
+
+        then:
+        inst.length == 1
     }
 }

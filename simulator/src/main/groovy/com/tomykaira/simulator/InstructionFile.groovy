@@ -8,7 +8,14 @@ package com.tomykaira.simulator
  * To change this template use File | Settings | File Templates.
  */
 class InstructionFile {
+    private def instructions = []
+
+    InstructionFile(String str) {
+        if (str)
+            instructions = str.split("\n")
+    }
+
     def getLength() {
-        return 0;
+        instructions.size();
     }
 }
