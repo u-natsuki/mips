@@ -4,6 +4,7 @@ import spock.lang.Specification
 import com.sun.org.apache.bcel.internal.generic.Instruction
 import groovy.mock.interceptor.MockFor
 import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
+import spock.lang.Unroll
 
 /**
  * Created with IntelliJ IDEA.
@@ -143,7 +144,30 @@ class MipsSpecification extends Specification {
         expect:
         def fakeMips = new Mips(null, null, null)
         fakeMips.fmul(Float.floatToIntBits(1.5f), Float.floatToIntBits(3.0f)) == Float.floatToIntBits(4.5f)
+    }
 
+    @Unroll("#a #op #b is #answer")
+    def "float branching"() {
+        expect:
+        def fakeMips = new Mips(null, null, null)
+        fakeMips.floatBranchCondition(op, Float.floatToIntBits(a), Float.floatToIntBits(b)) == answer
+
+        where:
+        op   | a      | b      | answer
+        "eq" | 1.5f   | 1.5f   | true
+        "eq" | 1.5f   | 1.499f | false
+        "ge" | 1.5f   | 1.5f   | true
+        "ge" | 1.5f   | 1.8f   | false
+        "ge" | 1.5f   | 1.3f   | true
+        "ge" | 1.5f   | -4.0f  | true
+        "ge" | -4.0f  | 1.5f   | false
+        "ge" | -6.0f  | -4.0f  | false
+        "ge" | -4.0f  | -6.0f  | true
+        "ge" | -4.0f  | -4.0f  | true
+        "lt" | 1.5f   | 3.9f   | true
+        "lt" | 3.9f   | 1.5f   | false
+        "lt" | -1.5f  | 1.5f   | true
+        "lt" | 1.5f   | -1.5f  | false
     }
 
     Mips init(String ...s) {

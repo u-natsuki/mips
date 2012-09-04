@@ -117,16 +117,25 @@ class Mips implements Serializable {
                 pc = stack.pop() - 1
                 break
             case 57:
+                if (floatBranchCondition("ge", reg.get(rs), reg.get(rt)))
+                    pc += imm
+                break
             case 60:
                 if (reg.get(rs) >= reg.get(rt))
                     pc += imm
                 break
             case 58:
+                if (floatBranchCondition("lt", reg.get(rs), reg.get(rt)))
+                    pc += imm
+                break
             case 61:
                 if (reg.get(rs) < reg.get(rt))
                     pc += imm
                 break
             case 59:
+                if (floatBranchCondition("eq", reg.get(rs), reg.get(rt)))
+                    pc += imm
+                break
             case 62:
                 if (reg.get(rs) == reg.get(rt))
                     pc += imm
@@ -153,18 +162,14 @@ class Mips implements Serializable {
         int lxm = x & 0x000007ff  // Lower X Mantissa
         int uym = 0x1000 | (y & 0x007ff800) >> 11 // Upper X Mantissa
         int lym = y & 0x000007ff  // Lower X Mantissa
-        println(Integer.toString(uxm, 16))
-        println(Integer.toString(lxm, 16))
 
         long m = uxm*uym + ((lxm*uym) >> 11) + ((uxm*lym) >> 11) + 2
-        println(Long.toString(m, 16))
         while (m >= 0x01000000) {
             m = m >>> 1
             e ++
         }
         e -- // 22 桁移動した
 
-        println(Long.toString(m, 16))
         sx.xor(sy) + (e << 23) + (m & 0x007FFFFF)
     }
 
@@ -333,4 +338,16 @@ class Mips implements Serializable {
     }
 
     int getPc() { pc }
+
+    boolean floatBranchCondition(String type, int one, int another) {
+        switch (type) {
+            case "eq":
+                return one == another
+            case "ge":
+                return ((one & another & 0x80000000) > 0) ? one <= another : one >= another
+            case "lt":
+                // not GE
+                return !(((one & another & 0x80000000) > 0) ? one <= another : one >= another)
+        }
+    }
 }
