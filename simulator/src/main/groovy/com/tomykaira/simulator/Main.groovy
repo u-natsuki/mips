@@ -44,7 +44,7 @@ class Main {
             prevPc = mips.pc
             println prevPc
             if (prevPc == 1630) {
-                dump("1630").call()
+                dumpRegister("1630")
             }
             try {
                 mips.tick()
@@ -56,19 +56,30 @@ class Main {
         }
     }
 
+    private void dumpMemory(String suffix) {
+        def memoryWriter = new FileWriter("memory_dump${suffix}")
+        memory.dump(memoryWriter)
+        memoryWriter.close()
+    }
+
+    private void dumpRegister(String suffix) {
+        def regWriter = new FileWriter("reg_dump${suffix}")
+        mips.reg.dump(regWriter)
+        regWriter.close()
+    }
+
+    private void dumpPPM(String suffix) {
+        def ppmWriter = new FileWriter("ppm_dump${suffix}")
+        server.dump(ppmWriter)
+        ppmWriter.close()
+    }
+
     private Closure dump(String suffix) {
         { ->
             System.err.println("Dumping")
-
-            def regWriter = new FileWriter("reg_dump${suffix}")
-            def memoryWriter = new FileWriter("memory_dump${suffix}")
-            def ppmWriter = new FileWriter("ppm_dump${suffix}")
-            mips.reg.dump(regWriter)
-            memory.dump(memoryWriter)
-            server.dump(ppmWriter)
-            regWriter.close()
-            memoryWriter.close()
-            ppmWriter.close()
+            dumpMemory(suffix)
+            dumpRegister(suffix)
+            dumpPPM(suffix)
         }
     }
 

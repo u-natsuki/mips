@@ -3,6 +3,7 @@ package com.tomykaira.simulator
 import spock.lang.Specification
 import com.sun.org.apache.bcel.internal.generic.Instruction
 import groovy.mock.interceptor.MockFor
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
 
 /**
  * Created with IntelliJ IDEA.
@@ -129,6 +130,22 @@ class MipsSpecification extends Specification {
         then:
         mips.pc == 16
         memory.get(9) == 2
+    }
+
+    def "serialization"() {
+        when:
+        def mips = init(addi(1,0,4), addi(1,0,5))
+        def byteOutputStream = new ByteArrayOutputStream()
+        def oos = new ObjectOutputStream(byteOutputStream)
+        mips.tick()
+        oos.withObjectOutputStream { it << mips }
+        mips.tick()
+
+        then:
+        new ObjectInputStream(new ByteInputStream(byteOutputStream.toByteArray(),byteOutputStream.size()))
+                .withObjectInputStream {
+            ((Mips)it.readObject()).reg.get(1) == 4
+        }
     }
 
     Mips init(String ...s) {
