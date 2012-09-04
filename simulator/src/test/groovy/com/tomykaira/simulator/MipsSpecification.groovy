@@ -53,15 +53,6 @@ class MipsSpecification extends Specification {
         memory.get(1000) == 0
     }
 
-    def "infinity should raise an exception"() {
-        when:
-        def mips = init(addi(18,0,Float.floatToIntBits(Float.MAX_VALUE)), fmul(19,18,18))
-        mips.tick().tick()
-
-        then:
-        thrown(SimulationException)
-    }
-
     def "jump"() {
         when:
         def mips = init(addi(1,0,5), jump(0))
@@ -146,6 +137,13 @@ class MipsSpecification extends Specification {
                 .withObjectInputStream {
             ((Mips)it.readObject()).reg.get(1) == 4
         }
+    }
+
+    def "fmul"() {
+        expect:
+        def fakeMips = new Mips(null, null, null)
+        fakeMips.fmul(Float.floatToIntBits(1.5f), Float.floatToIntBits(3.0f)) == Float.floatToIntBits(4.5f)
+
     }
 
     Mips init(String ...s) {

@@ -32,6 +32,14 @@ class Mips implements Serializable {
         def rd = (inst >> 11) & 0b11111
         def imm = signExtend(inst, 16)
         def jmp = inst & 0x3ffffff
+
+        Closure floatCheck = { int result ->
+            if (Float.intBitsToFloat(result).isNaN())
+                throw new SimulationException("Result of ${rs}(${reg.get(rs)}) - ${rt}(${reg.get(rt)}) is NaN")
+            if (Float.intBitsToFloat(result).isInfinite())
+                throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is infinite")
+        }
+
         switch (inst >> 26) {
             case 0:
                 reg.set(rd, reg.get(rs) & reg.get(rt))
@@ -58,31 +66,20 @@ class Mips implements Serializable {
                 reg.set(rt, reg.get(rs) << imm)
                 break
             case 16:
-                def result = fadd(reg.get(rs).toInteger(), reg.get(rt).toInteger())
-                println(result)
-                println(Float.intBitsToFloat(result))
-                if (Float.intBitsToFloat(result).isNaN())
-                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is NaN")
-                if (Float.intBitsToFloat(result).isInfinite())
-                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is infinite")
+                def result = fadd(reg.get(rs), reg.get(rt))
+                floatCheck(result)
 
                 reg.set(rd, result)
                 break
             case 17:
-                def result = fadd(reg.get(rs).toInteger(), reg.get(rt).xor(0x80000000).toInteger())
-                if (Float.intBitsToFloat(result).isNaN())
-                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) - ${rt}(${reg.get(rt)}) is NaN")
-                if (Float.intBitsToFloat(result).isInfinite())
-                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is infinite")
+                def result = fadd(reg.get(rs), reg.get(rt).xor(0x80000000))
+                floatCheck(result)
 
                 reg.set(rd, result)
                 break
             case 18:
-                float result = f(reg.get(rs)) * f(reg.get(rt))
-                if (result.isNaN())
-                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) * ${rt}(${reg.get(rt)}) is NaN")
-                if (result.isInfinite())
-                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is infinite")
+                int result = fmul(reg.get(rs), reg.get(rt))
+                floatCheck(result)
 
                 reg.set(rd, ib(result))
                 break
@@ -143,6 +140,32 @@ class Mips implements Serializable {
         }
         pc += 1
         return this
+    }
+
+    int fmul(int x, int y) {
+        int sx = x & 0x80000000
+        int sy = y & 0x80000000
+
+        int e = ((x & 0x7F800000) >> 23) + ((y & 0x7F800000) >> 23) - 127
+        // exponent + 127
+
+        int uxm = 0x1000 | (x & 0x007ff800) >> 11  // Upper X Mantissa
+        int lxm = x & 0x000007ff  // Lower X Mantissa
+        int uym = 0x1000 | (y & 0x007ff800) >> 11 // Upper X Mantissa
+        int lym = y & 0x000007ff  // Lower X Mantissa
+        println(Integer.toString(uxm, 16))
+        println(Integer.toString(lxm, 16))
+
+        long m = uxm*uym + ((lxm*uym) >> 11) + ((uxm*lym) >> 11) + 2
+        println(Long.toString(m, 16))
+        while (m >= 0x01000000) {
+            m = m >>> 1
+            e ++
+        }
+        e -- // 22 桁移動した
+
+        println(Long.toString(m, 16))
+        sx.xor(sy) + (e << 23) + (m & 0x007FFFFF)
     }
 
     int i2f(int x) {
