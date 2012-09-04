@@ -115,4 +115,8 @@ class CServer {
             ppm.append(b as char)
         }
     }
+
+    void dump(FileWriter writer) {
+        writer.write(ppm.toString())
+    }
 }
