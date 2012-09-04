@@ -25,6 +25,7 @@ class Main {
             prevPc = mips.pc
             println Float.intBitsToFloat(mips.reg.getDebug(17)?.toInteger() ?: 0)
             println Float.intBitsToFloat(mips.reg.getDebug(18)?.toInteger() ?: 0)
+            if (mips.pc == )
             println prevPc
             try {
                 mips.tick()
