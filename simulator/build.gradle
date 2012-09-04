@@ -5,7 +5,7 @@ apply plugin: 'application'
 mainClassName = 'com.tomykaira.simulator.Main'
 
 run {
-    args "/home/tomita/programs/hw/mips/min-rt.bin", "/home/tomita/programs/hw/raytracer/sld/base.sld", "/home/tomita/tmp/output.png"
+    args "/home/tomita/programs/hw/mips/finv.bin", "/home/tomita/programs/hw/raytracer/sld/base.sld", "/home/tomita/tmp/output.png"
 }
 
 repositories {
