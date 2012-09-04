@@ -12,7 +12,7 @@ while(true){
     }
     if(!current.equals(lastmodified)){
         println "build"
-        def p = "gradle test".execute()
+        def p = "gradle test --daemon".execute()
         p.inputStream.eachLine("UTF-8"){
             println it
         }
