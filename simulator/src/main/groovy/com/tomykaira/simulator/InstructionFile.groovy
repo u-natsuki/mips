@@ -7,7 +7,7 @@ package com.tomykaira.simulator
  * Time: 2:33 PM
  * To change this template use File | Settings | File Templates.
  */
-class InstructionFile {
+class InstructionFile implements Serializable {
     private def instructions = []
 
     InstructionFile(String str) {

@@ -7,7 +7,7 @@ package com.tomykaira.simulator
  * Time: 3:48 PM
  * To change this template use File | Settings | File Templates.
  */
-class Register {
+class Register implements Serializable {
     private int [] regfile
     private boolean [] wroteFlag
     int length

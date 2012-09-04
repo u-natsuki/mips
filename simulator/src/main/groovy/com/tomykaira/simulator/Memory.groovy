@@ -7,7 +7,7 @@ package com.tomykaira.simulator
  * Time: 3:19 PM
  * To change this template use File | Settings | File Templates.
  */
-class Memory {
+class Memory implements Serializable {
 
     private final int MAX_ADDRESS = 2*1024*1024
     int [] mem = new int [MAX_ADDRESS]

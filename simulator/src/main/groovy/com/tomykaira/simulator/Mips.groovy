@@ -9,7 +9,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
  * Time: 4:31 PM
  * To change this template use File | Settings | File Templates.
  */
-class Mips implements  {
+class Mips implements Serializable {
     public static final int STACK_SIZE = 64
 
     private final InstructionFile instructionFile

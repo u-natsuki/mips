@@ -7,7 +7,7 @@ package com.tomykaira.simulator
  * Time: 9:30 PM
  * To change this template use File | Settings | File Templates.
  */
-class CServer {
+class CServer implements Serializable {
     private static final MAX_SLD_SIZE = 4096
     private final Scanner sldScan
     private boolean aaReceived = false
