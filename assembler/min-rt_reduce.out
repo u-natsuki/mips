@@ -1579,7 +1579,7 @@
 ; pc = 1578 ; RETURN ; 
 ; pc = 1579 ; ADD %r1 %r0 1 ; "eq_then.12870" 
 ; pc = 1580 ; RETURN ; 
-; pc = 1581 ; FBLT %f0 %f2 lt_then.12884 ; "finv.2831" 
+; pc = 1581 ; FBGE %f2 %f0 lt_then.12884 ; "finv.2831" 
 ; pc = 1582 ; FSUB %f2 %f0 %f2 ; 
 ; pc = 1583 ; ADD %r31 %r31 1 ; 
 ; pc = 1584 ; CALL finv.2831 ; 
