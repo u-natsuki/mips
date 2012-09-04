@@ -8,12 +8,14 @@ package com.tomykaira.simulator
  * To change this template use File | Settings | File Templates.
  */
 class Register {
-    List<Integer> regfile
+    private int [] regfile
+    private boolean [] wroteFlag
     int length
 
     Register(int length) {
         this.length = length
-        regfile = new ArrayList<Integer>(length)
+        regfile = new int [length]
+        wroteFlag = new boolean [length]
     }
 
     int get(long address) {
@@ -21,7 +23,7 @@ class Register {
             return 0
         if (address >= length)
             throw new OutOfRangeException()
-        if (regfile[address.toInteger()] == null)
+        if (! wroteFlag[address])
             throw new NotYetSetException(address)
         regfile[address.toInteger()]
     }
@@ -33,6 +35,7 @@ class Register {
     void set(long address, int data) {
         if (address >= length)
             throw new OutOfRangeException()
-        regfile[address.toInteger()] = data
+        regfile[address] = data
+        wroteFlag[address] = true
     }
 }

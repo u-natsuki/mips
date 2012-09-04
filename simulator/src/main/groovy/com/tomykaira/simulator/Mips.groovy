@@ -103,6 +103,8 @@ class Mips {
                 memory.set(reg.get(rs) + reg.get(rd), reg.get(rt))
                 break
             case 55:
+                if (stack.size() >= 64)
+                    throw new SimulationException("Stack overflow")
                 stack.push(pc + 1)
                 pc = jmp - 1 // adjustment for always +1
                 break

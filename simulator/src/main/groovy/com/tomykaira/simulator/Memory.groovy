@@ -10,20 +10,24 @@ package com.tomykaira.simulator
 class Memory {
 
     private final int MAX_ADDRESS = 2*1024*1024
-    List<Integer> mem = new ArrayList<Integer>(MAX_ADDRESS)
+    int [] mem = new int [MAX_ADDRESS]
+    boolean [] wroteFlag = new boolean [MAX_ADDRESS]
 
     int get(long address) {
         assertAddressInRange(address)
-        if (mem[address.toInteger()] == null) {
+        def normalized = normalize(address)
+        if (! wroteFlag[normalized]) {
             throw new NotYetSetException(address)
         } else {
-            mem[normalize(address)]
+            mem[normalized]
         }
     }
 
     void set(long address, int data) {
         assertAddressInRange(address)
-        mem[normalize(address)] = data
+        def normalized = normalize(address)
+        mem[normalized] = data
+        wroteFlag[normalized] = true
     }
 
     private void assertAddressInRange(address) {
@@ -35,7 +39,7 @@ class Memory {
     private int normalize(address) {
         assertAddressInRange(address)
         if (address < 0) {
-            (MAX_ADDRESS-address).toInteger()
+            (MAX_ADDRESS+address).toInteger()
         } else {
             address.toInteger()
         }
