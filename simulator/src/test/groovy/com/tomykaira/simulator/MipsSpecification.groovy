@@ -104,12 +104,34 @@ class MipsSpecification extends Specification {
         memory.get(9) == 72
     }
 
+    def "read -1"() {
+        when:
+        def mockPort = [receive: { 0xff }]
+        def mips = initWithPort(mockPort, receive(1), sll(1,1,8),
+                receive(2), add(1,1,2), sll(1,1,8),
+                receive(2), add(1,1,2), sll(1,1,8),
+                receive(2), add(1,1,2),
+                addi(1,1,1), beq(1,0,2),
+                addi(2,0,1), sw(2,0,9),
+                addi(2,0,2), sw(2,0,9))
+
+        14.times { mips.tick() }
+
+        then:
+        mips.pc == 16
+        memory.get(9) == 2
+    }
+
     Mips init(String ...s) {
         new Mips(new InstructionFile(s.join("\n")), memory, null)
     }
 
     Mips initWithPort(port, String ...s) {
         new Mips(new InstructionFile(s.join("\n")), memory, port as Expando)
+    }
+
+    String sll(int rt, int rs, int shiftAmount) {
+        "001011" + bit(rs, 5) + bit(rt, 5) + bit(shiftAmount, 16)
     }
 
     String receive(int reg) {
@@ -133,7 +155,7 @@ class MipsSpecification extends Specification {
     }
 
     String add(int rd, int rs, int rt) {
-        "000010" + bit(rd, 5) + bit(rs, 5) + bit(rt, 5) + bit(0, 11)
+        "000010" + bit(rs, 5) + bit(rt, 5) + bit(rd, 5) + bit(0, 11)
     }
 
     String addi(int to, int from, int imm) {
@@ -141,7 +163,7 @@ class MipsSpecification extends Specification {
     }
 
     String fadd(int rd, int rs, int rt) {
-        "010000" + bit(rd, 5) + bit(rs, 5) + bit(rt, 5) + bit(0, 11)
+        "010000" + bit(rs, 5) + bit(rt, 5) + bit(rd, 5) + bit(0, 11)
     }
 
     String sw(int from, int address, int diff) {

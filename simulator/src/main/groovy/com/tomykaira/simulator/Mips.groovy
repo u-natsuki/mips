@@ -283,19 +283,19 @@ class Mips {
         }
     }
 
-    private Number signExtend(Number number, int fromSize) {
+    private int signExtend(Number number, int fromSize) {
         def cut = number & ((1 << fromSize) - 1)
         if ((cut & (1 << (fromSize-1))) > 0)
-            cut - (1 << fromSize)
+            (cut - (1 << fromSize)).toInteger()
         else
-            cut
+            cut.toInteger()
     }
 
-    private long ib(Number v) {
-        Float.floatToIntBits(v.toFloat()).toLong()
+    private int ib(Number v) {
+        Float.floatToIntBits(v.toFloat())
     }
 
-    private float f(long l) {
+    private float f(int l) {
         Float.intBitsToFloat(l.toInteger())
     }
 

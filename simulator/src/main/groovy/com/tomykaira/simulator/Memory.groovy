@@ -10,9 +10,9 @@ package com.tomykaira.simulator
 class Memory {
 
     private final int MAX_ADDRESS = 2*1024*1024
-    List<Long> mem = new ArrayList<Long>(MAX_ADDRESS)
+    List<Integer> mem = new ArrayList<Integer>(MAX_ADDRESS)
 
-    long get(long address) {
+    int get(long address) {
         assertAddressInRange(address)
         if (mem[address.toInteger()] == null) {
             throw new NotYetSetException(address)
@@ -21,7 +21,7 @@ class Memory {
         }
     }
 
-    void set(long address, long data) {
+    void set(long address, int data) {
         assertAddressInRange(address)
         mem[normalize(address)] = data
     }
