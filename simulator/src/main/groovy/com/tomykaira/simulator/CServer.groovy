@@ -11,6 +11,7 @@ class CServer {
     private static final MAX_SLD_SIZE = 4096
     private final Scanner sldScan
     private boolean aaReceived = false
+    private int counter = 0
     List<Integer> data = new ArrayList<Integer>()
     StringBuffer ppm = new StringBuffer()
 
@@ -96,7 +97,15 @@ class CServer {
         if (! aaReceived)
             throw new NotReadyException()
 
-        data.remove(0)
+        def sending = (data[0] & (0xff000000 >> counter*8)) >> ((3-counter) * 8)
+        if (counter == 3) {
+            data.remove(0)
+            counter = 0
+        } else {
+            counter ++
+        }
+        sending
+
     }
 
     void send(int b) {

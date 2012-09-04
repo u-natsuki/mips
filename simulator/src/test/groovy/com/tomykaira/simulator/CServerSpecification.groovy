@@ -64,9 +64,19 @@ class CServerSpecification extends Specification {
         server.readSldFile()
         server.send(0xaa)
 
+        def f_70 = Float.floatToIntBits(-70)
+        def f35 = Float.floatToIntBits(35)
+
         then:
-        server.receive() == Float.floatToIntBits(-70)
-        server.receive() == Float.floatToIntBits(35)
+        server.receive() == (f_70 & 0xff000000) >> 24
+        server.receive() == (f_70 & 0x00ff0000) >> 16
+        server.receive() == (f_70 & 0x0000ff00) >> 8
+        server.receive() == (f_70 & 0x000000ff)
+
+        server.receive() == (f35 & 0xff000000) >> 24
+        server.receive() == (f35 & 0x00ff0000) >> 16
+        server.receive() == (f35 & 0x0000ff00) >> 8
+        server.receive() == (f35 & 0x000000ff)
     }
 
     def "save received PPM data"() {
