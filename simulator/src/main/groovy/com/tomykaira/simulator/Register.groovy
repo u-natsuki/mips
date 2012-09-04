@@ -38,4 +38,8 @@ class Register {
         regfile[address] = data
         wroteFlag[address] = true
     }
+
+    void dump(FileWriter st) {
+        length.times { st.write("${it}: ${regfile[it]}\n") }
+    }
 }

@@ -18,8 +18,12 @@ class Main {
 
         def inst = new InstructionFile(new File(args[0]).getText(ENCODING))
         def server = new CServer(new File(args[1]).newInputStream())
+        def memory = new Memory()
         server.readSldFile()
-        def mips = new Mips(inst, new Memory(), server)
+        def mips = new Mips(inst, memory, server)
+
+        registerShutdownHandler(mips, memory)
+
         def prevPc = -1
         while (mips.pc != prevPc) {
             prevPc = mips.pc
@@ -33,5 +37,21 @@ class Main {
             }
         }
         new File(args[2]).write(server.ppm.toString(), ENCODING)
+    }
+
+    static void registerShutdownHandler(Mips mips, Memory memory) {
+
+        System.err.println("Adding error handler")
+        Runtime.runtime.addShutdownHook {
+            System.err.println("Dumping")
+
+            def regWriter = new FileWriter("reg_dump")
+            def memoryWriter = new FileWriter("memory_dump")
+            mips.reg.dump(regWriter)
+            memory.dump(memoryWriter)
+            regWriter.close()
+            memoryWriter.close()
+        }
+
     }
 }

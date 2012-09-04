@@ -30,6 +30,10 @@ class Memory {
         wroteFlag[normalized] = true
     }
 
+    void dump(FileWriter st) {
+        MAX_ADDRESS.times { st.write("${it}: ${mem[it]}\n") }
+    }
+
     private void assertAddressInRange(address) {
         if (address >= MAX_ADDRESS) {
             throw new OutOfRangeException();
