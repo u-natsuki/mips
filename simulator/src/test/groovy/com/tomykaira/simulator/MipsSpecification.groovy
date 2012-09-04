@@ -52,6 +52,15 @@ class MipsSpecification extends Specification {
         memory.get(1000) == 0
     }
 
+    def "infinity should raise an exception"() {
+        when:
+        def mips = init(addi(18,0,Float.floatToIntBits(Float.MAX_VALUE)), fmul(19,18,18))
+        mips.tick().tick()
+
+        then:
+        thrown(SimulationException)
+    }
+
     def "jump"() {
         when:
         def mips = init(addi(1,0,5), jump(0))
@@ -164,6 +173,10 @@ class MipsSpecification extends Specification {
 
     String fadd(int rd, int rs, int rt) {
         "010000" + bit(rs, 5) + bit(rt, 5) + bit(rd, 5) + bit(0, 11)
+    }
+
+    String fmul(int rd, int rs, int rt) {
+        "010010" + bit(rs, 5) + bit(rt, 5) + bit(rd, 5) + bit(0, 11)
     }
 
     String sw(int from, int address, int diff) {

@@ -59,8 +59,12 @@ class Mips {
                 break
             case 16:
                 def result = fadd(reg.get(rs).toInteger(), reg.get(rt).toInteger())
+                println(result)
+                println(Float.intBitsToFloat(result))
                 if (Float.intBitsToFloat(result).isNaN())
                     throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is NaN")
+                if (Float.intBitsToFloat(result).isInfinite())
+                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is infinite")
 
                 reg.set(rd, result)
                 break
@@ -68,13 +72,17 @@ class Mips {
                 def result = fadd(reg.get(rs).toInteger(), reg.get(rt).xor(0x80000000).toInteger())
                 if (Float.intBitsToFloat(result).isNaN())
                     throw new SimulationException("Result of ${rs}(${reg.get(rs)}) - ${rt}(${reg.get(rt)}) is NaN")
+                if (Float.intBitsToFloat(result).isInfinite())
+                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is infinite")
 
                 reg.set(rd, result)
                 break
             case 18:
-                def result = f(reg.get(rs)) * f(reg.get(rt))
+                float result = f(reg.get(rs)) * f(reg.get(rt))
                 if (result.isNaN())
                     throw new SimulationException("Result of ${rs}(${reg.get(rs)}) * ${rt}(${reg.get(rt)}) is NaN")
+                if (result.isInfinite())
+                    throw new SimulationException("Result of ${rs}(${reg.get(rs)}) + ${rt}(${reg.get(rt)}) is infinite")
 
                 reg.set(rd, ib(result))
                 break
