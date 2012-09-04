@@ -23,9 +23,6 @@ class Main {
         def prevPc = -1
         while (mips.pc != prevPc) {
             prevPc = mips.pc
-            println mips.reg.getDebug(1)
-            println Float.intBitsToFloat(mips.reg.getDebug(17)?.toInteger() ?: 0)
-            println Float.intBitsToFloat(mips.reg.getDebug(18)?.toInteger() ?: 0)
             println prevPc
             try {
                 mips.tick()
