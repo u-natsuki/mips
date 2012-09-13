@@ -14,7 +14,6 @@ module instruction_memory (input clk,
 
    always @ (posedge clk) begin
       rd <= RAM[a]; // word align
-      $display("INST: %h", rd);
    end
 
 endmodule

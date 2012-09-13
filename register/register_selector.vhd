@@ -1,7 +1,5 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
-Use IEEE.STD_LOGIC_TEXTIO.all;
-Use STD.TEXTIO.all;
 
 -- Select float register or integer register for each operand.
 -- This works as a facade to registers.
@@ -90,23 +88,5 @@ begin -- behave
   -- output MUX
   read_data1  <= float_read_data1 when addr1_float = '1' else int_read_data1;
   read_data2  <= float_read_data2 when addr2_float = '1' else int_read_data2;
-
-  debug : process (clk)
-    variable l : line;
-    variable reg : string(1 to 5);
-    variable f : string(1 to 1);
-  begin
-    if clk'event and clk = '1' and write_enable3 = '1' then
-      reg := "REG: ";
-      write(l, reg);
-      if addr3_float = '1' then
-        f := "f";
-        write(l, f);
-      end if;
-      hwrite(l, "000"&write_addr3);
-      hwrite(l, write_data3, right, 9);
-      writeline(output, l);
-    end if;
-  end process;
   
 end behave;
