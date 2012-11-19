@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <signal.h>
 #include <errno.h>
+#include <libgen.h>
 #include "fpu.h"
 
 // 命令の各要素にアクセスする関数を定義
@@ -617,7 +618,8 @@ int simulate(simulation_options * opt)
 				D_REGISTER(log_fp, "REG: INPUTB %02X %08X\n", get_rt(inst), IRT);
 				break;
 			case OUTPUTB:
-				if (opt->enable_stdout) {
+				if (opt->enable_stdout &&
+				    IRT != 231 && IRT != 181 && IRT != 130) { // 終了マーカは無視。ログには出す
 					printf("%c", (char)IRT);
 				}
 				D_IO(log_fp, "IO: %c\n", (char)IRT);
@@ -680,6 +682,7 @@ int main(int argc, char** argv)
 	int c;
 	int ret;
 	int length = 0;
+	char dirpath[255];
 
 	simulation_options opt;
 	opt.enable_stdout             = true;
@@ -690,6 +693,9 @@ int main(int argc, char** argv)
 	opt.lib_test_mode             = false;
 	opt.input_file                = NULL;
 	opt.target_binary             = NULL;
+
+	strcpy(dirpath, argv[0]);
+	dirname(dirpath);
 
 	while (1) {
 		int option_index = 0;
@@ -755,7 +761,7 @@ int main(int argc, char** argv)
 
 	disable_step();
 
-	load_tables(); // FPU
+	load_tables(dirpath); // FPU
 
 	cerr << "<simulate> " << endl;
 
